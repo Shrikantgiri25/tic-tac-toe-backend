@@ -1,14 +1,32 @@
 #!/bin/bash
 
-# Backend
-cd backend
-pip install -r requirements.txt
-python manage.py migrate
-python manage.py collectstatic --noinput &
-gunicorn backend.wsgi:application --bind 0.0.0.0:$PORT &
+# Exit immediately if a command exits with a non-zero status
+set -e
 
-# Frontend
+# -------------------------
+# Backend (Django) setup
+# -------------------------
+cd backend
+
+# Install Python dependencies
+python3 -m pip install --upgrade pip
+pip install -r requirements.txt
+
+# Run Django migrations
+python manage.py migrate
+
+# Collect static files
+python manage.py collectstatic --noinput
+
+# -------------------------
+# Frontend (React) build
+# -------------------------
 cd ../frontend
 npm install
 npm run build
-npx serve -s build -l $PORT
+
+# -------------------------
+# Start backend with Gunicorn
+# -------------------------
+cd ../backend
+gunicorn game_backend.wsgi:application --bind 0.0.0.0:$PORT
