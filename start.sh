@@ -12,6 +12,6 @@ python manage.py migrate
 python manage.py collectstatic --noinput
 
 # -------------------------
-# Start backend with Gunicorn
+# Start backend with Daphne (for WebSockets)
 # -------------------------
-gunicorn game_backend.wsgi:application --bind 0.0.0.0:$PORT
+daphne game_backend.asgi:application --port $PORT --bind 0.0.0.0
