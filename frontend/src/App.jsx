@@ -6,7 +6,7 @@ import Home from './pages/Home';
 import Game from './pages/Game';
 import Login from './pages/Login';
 import Register from './pages/Register';
-import Leaderboard from './components/Leaderboard';
+import Leaderboard from './components/LeaderBoard';
 import './App.css';
 
 const PrivateRoute = ({ children }) => {
