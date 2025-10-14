@@ -26,8 +26,16 @@ env = environ.Env(
     DB_PASSWORD=(str, 'HvRvthrByILmzYSUNVwMqyfXnATYqgJv'),
     DB_HOST=(str, 'postgres.railway.internal'),
     DB_PORT=(int, 5432),
+    # 💡 CORRECT: Using plural CORS_ALLOWED_ORIGINS (matches CORS_ALLOWED_ORIGINS setting)
     CORS_ALLOWED_ORIGINS=(list, ['http://localhost:5173', 'http://127.0.0.1:5173', 'https://your-app.up.railway.app']),
-    FRONTEND_URL=(list, ['http://localhost:5173', 'http://127.0.0.1:5173', 'https://your-app.up.railway.app']),
+    FRONTEND_URL=(str, 'http://localhost:5173'), # Changed to 'str' if used as a single base URL
+    REDIS_URL=(str, 'redis://default:qOPtptfCHUeiinQwlUluYdxjLJjVgtlb@redis.railway.internal:6379'), # Added default for Redis
+    USER_THROTTLE_LIMIT=(int, 1000), # Added explicit default casting
+    ANON_THROTTLE_LIMIT=(int, 1000), # Added explicit default casting
+    JWT_TOKEN_LIFETIME=(int, 100),   # Added explicit default casting
+    JWT_REFRESH_TOKEN_LIFETIME=(int, 100), # Added explicit default casting
+    ROTATE_REFRESH_TOKEN=(bool, True), # Added explicit default casting
+    BLACKLIST_AFTER_ROTATION=(bool, True), # Added explicit default casting
 )
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -169,8 +177,8 @@ REST_FRAMEWORK = {
         "rest_framework.throttling.AnonRateThrottle",
     ],
     "DEFAULT_THROTTLE_RATES": {
-        "user": env("USER_THROTTLE_LIMIT", default=1000),
-        "anon": env("ANON_THROTTLE_LIMIT", default=1000),
+        "user": env("USER_THROTTLE_LIMIT"),
+        "anon": env("ANON_THROTTLE_LIMIT"),
     },
     "DEFAULT_RENDERER_CLASSES": ("rest_framework.renderers.JSONRenderer",),
     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
@@ -178,10 +186,10 @@ REST_FRAMEWORK = {
 
 
 SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME": timedelta(hours=int(env("JWT_TOKEN_LIFETIME", default=100))),
-    "REFRESH_TOKEN_LIFETIME": timedelta(days=int(env("JWT_REFRESH_TOKEN_LIFETIME", default=100))),
-    "ROTATE_REFRESH_TOKENS": env.bool("ROTATE_REFRESH_TOKEN", default=True),
-    "BLACKLIST_AFTER_ROTATION": env.bool("BLACKLIST_AFTER_ROTATION", default=True),
+    "ACCESS_TOKEN_LIFETIME": timedelta(hours=env("JWT_TOKEN_LIFETIME")),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=env("JWT_REFRESH_TOKEN_LIFETIME")),
+    "ROTATE_REFRESH_TOKENS": env("ROTATE_REFRESH_TOKEN"),
+    "BLACKLIST_AFTER_ROTATION": env("BLACKLIST_AFTER_ROTATION"),
 }
 
 FRONTEND_URL = env("FRONTEND_URL")
@@ -190,13 +198,14 @@ CHANNEL_LAYERS = {
     'default': {
         'BACKEND': 'channels_redis.core.RedisChannelLayer',
         'CONFIG': {
-            "hosts": [env('REDIS_URL', default='redis://default:qOPtptfCHUeiinQwlUluYdxjLJjVgtlb@redis.railway.internal:6379')],
+            "hosts": [env('REDIS_URL')],
         },
     },
 }
 
 # CORS Settings
-CORS_ALLOWED_ORIGINS = env.list("CORS_ALLOWED_ORIGIN")
+# 🚀 FIX: Using plural "CORS_ALLOWED_ORIGINS" to match the variable name defined at the top
+CORS_ALLOWED_ORIGINS = env.list("CORS_ALLOWED_ORIGINS")
 
 CORS_ALLOW_CREDENTIALS = True
 
@@ -228,4 +237,5 @@ ROOT_URLCONF = 'game_backend.urls'
 ASGI_APPLICATION = 'game_backend.asgi.application'
 WSGI_APPLICATION = 'game_backend.wsgi.application'
 
-CSRF_TRUSTED_ORIGINS = env.list("CORS_ALLOWED_ORIGIN")
+# 🚀 FIX: Using plural "CORS_ALLOWED_ORIGINS" to match the variable name defined at the top
+CSRF_TRUSTED_ORIGINS = env.list("CORS_ALLOWED_ORIGINS")
