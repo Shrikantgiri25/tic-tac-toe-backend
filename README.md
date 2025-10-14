@@ -221,9 +221,6 @@ See [DEPLOYMENT.md](DEPLOYMENT.md) for detailed deployment instructions for free
 5. Ensure all tests pass
 6. Submit a pull request
 
-## 📄 License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
 
 ## 🙏 Acknowledgments
 
@@ -233,5 +230,3 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 - The Django and React communities
 
 ---
-
-**Built with ❤️ for LILA Games Engineering Team Assessment**
