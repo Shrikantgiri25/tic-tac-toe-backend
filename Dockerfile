@@ -1,30 +1,33 @@
-# Stage 1: Build React frontend
-FROM node:20 AS frontend
+# Use official Python image
+FROM python:3.12-slim
+
+# Install Node.js and npm for frontend build
+RUN apt-get update && apt-get install -y curl git build-essential \
+    && curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
+    && apt-get install -y nodejs \
+    && rm -rf /var/lib/apt/lists/*
+
+# Set work directory
+WORKDIR /app
+
+# Copy everything
+COPY . .
+
+# Make start.sh executable
+RUN chmod +x start.sh
+
+# Install backend dependencies
+WORKDIR /app/backend
+RUN python3 -m pip install --upgrade pip
+RUN pip install -r requirements.txt
+
+# Build frontend
 WORKDIR /app/frontend
-COPY frontend/package*.json ./
 RUN npm install
-COPY frontend/ .
 RUN npm run build
 
-# Stage 2: Build Python backend
-FROM python:3.12-slim
-WORKDIR /app/backend
-
-# Install Python dependencies
-COPY backend/requirements.txt ./
-RUN pip install --no-cache-dir -r requirements.txt
-
-# Copy backend code
-COPY backend/ ./
-
-# Copy built frontend into backend static files (if using Django)
-COPY --from=frontend /app/frontend/build ./static
-
-# Set environment variables (Railway will override)
-ENV PORT=8000
-
-# Expose port
+# Expose port (Railway sets $PORT)
 EXPOSE 8000
 
-# Run Django server with Gunicorn
-CMD ["gunicorn", "backend.wsgi:application", "--bind", "0.0.0.0:8000"]
+# Default start command
+CMD ["bash", "/app/start.sh"]
