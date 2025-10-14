@@ -1,33 +1,53 @@
-# Use official Python image
+# -------------------------------
+# Stage 1: Build frontend
+# -------------------------------
+FROM node:20 AS frontend-builder
+
+# Set working directory
+WORKDIR /app/frontend
+
+# Copy only frontend files
+COPY frontend/package*.json ./
+RUN npm install
+
+COPY frontend/ ./
+RUN npm run build
+
+# -------------------------------
+# Stage 2: Build backend
+# -------------------------------
 FROM python:3.12-slim
 
-# Install Node.js and npm for frontend build
-RUN apt-get update && apt-get install -y curl git build-essential \
-    && curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
-    && apt-get install -y nodejs \
-    && rm -rf /var/lib/apt/lists/*
+# Set environment variables
+ENV PYTHONUNBUFFERED=1
+ENV PORT=8000
 
-# Set work directory
+# Set working directory
 WORKDIR /app
 
-# Copy everything
-COPY . .
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    libpq-dev \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy backend files
+COPY backend/ ./backend
+COPY start.sh ./start.sh
+
+# Install Python dependencies
+RUN python3 -m pip install --upgrade pip
+RUN pip install -r backend/requirements.txt
+
+# Copy frontend build from previous stage
+COPY --from=frontend-builder /app/frontend/build ./frontend/build
 
 # Make start.sh executable
 RUN chmod +x start.sh
 
-# Install backend dependencies
-WORKDIR /app/backend
-RUN python3 -m pip install --upgrade pip
-RUN pip install -r requirements.txt
+# Expose port
+EXPOSE $PORT
 
-# Build frontend
-WORKDIR /app/frontend
-RUN npm install
-RUN npm run build
-
-# Expose port (Railway sets $PORT)
-EXPOSE 8000
-
-# Default start command
-CMD ["bash", "/app/start.sh"]
+# Start the app
+CMD ["bash", "./start.sh"]
