@@ -16,9 +16,18 @@ import os
 from datetime import timedelta
 
 env = environ.Env(
-    DEBUG=(bool, False)
+    # Set casting and default values
+    DEBUG=(bool, False),
+    SECRET_KEY=(str, 'django-insecure-waa62o+0-gj%rh-r4p$llwv8fpyinw_$&vb31vd0@%-p1lj#^#'),
+    ALLOWED_HOSTS=(list, ['localhost', '127.0.0.1', 'your-app.up.railway.app']),
+    DB_ENGINE=(str, 'django.db.backends.postgresql'),
+    DB_NAME=(str, 'railway'),
+    DB_USER=(str, 'postgres'),
+    DB_PASSWORD=(str, 'HvRvthrByILmzYSUNVwMqyfXnATYqgJv'),
+    DB_HOST=(str, 'postgres.railway.internal'),
+    DB_PORT=(int, 5432),
+    CORS_ALLOWED_ORIGINS=(list, ['http://localhost:5173', 'http://127.0.0.1:5173', 'https://your-app.up.railway.app']),
 )
-
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -159,8 +168,8 @@ REST_FRAMEWORK = {
         "rest_framework.throttling.AnonRateThrottle",
     ],
     "DEFAULT_THROTTLE_RATES": {
-        "user": env("USER_THROTTLE_LIMIT"),
-        "anon": env("ANON_THROTTLE_LIMIT"),
+        "user": env("USER_THROTTLE_LIMIT", default=1000),
+        "anon": env("ANON_THROTTLE_LIMIT", default=1000),
     },
     "DEFAULT_RENDERER_CLASSES": ("rest_framework.renderers.JSONRenderer",),
     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
@@ -168,8 +177,8 @@ REST_FRAMEWORK = {
 
 
 SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME": timedelta(hours=int(env("JWT_TOKEN_LIFETIME"))),
-    "REFRESH_TOKEN_LIFETIME": timedelta(days=int(env("JWT_REFRESH_TOKEN_LIFETIME"))),
+    "ACCESS_TOKEN_LIFETIME": timedelta(hours=int(env("JWT_TOKEN_LIFETIME", default=100))),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=int(env("JWT_REFRESH_TOKEN_LIFETIME", default=100))),
     "ROTATE_REFRESH_TOKENS": env.bool("ROTATE_REFRESH_TOKEN", default=True),
     "BLACKLIST_AFTER_ROTATION": env.bool("BLACKLIST_AFTER_ROTATION", default=True),
 }
@@ -180,7 +189,7 @@ CHANNEL_LAYERS = {
     'default': {
         'BACKEND': 'channels_redis.core.RedisChannelLayer',
         'CONFIG': {
-            "hosts": [env('REDIS_URL', default='redis://localhost:6379')],
+            "hosts": [env('REDIS_URL', default='redis://default:qOPtptfCHUeiinQwlUluYdxjLJjVgtlb@redis.railway.internal:6379')],
         },
     },
 }
