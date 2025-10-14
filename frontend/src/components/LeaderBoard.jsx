@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { auth } from '../api/api';
-import './Leaderboard.css';
+import "./LeaderBoard.css"
 
 const Leaderboard = () => {
   const [players, setPlayers] = useState([]);
