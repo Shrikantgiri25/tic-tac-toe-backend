@@ -27,6 +27,7 @@ env = environ.Env(
     DB_HOST=(str, 'postgres.railway.internal'),
     DB_PORT=(int, 5432),
     CORS_ALLOWED_ORIGINS=(list, ['http://localhost:5173', 'http://127.0.0.1:5173', 'https://your-app.up.railway.app']),
+    FRONTEND_URL=(list, ['http://localhost:5173', 'http://127.0.0.1:5173', 'https://your-app.up.railway.app']),
 )
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
