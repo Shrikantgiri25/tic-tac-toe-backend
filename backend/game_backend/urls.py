@@ -16,5 +16,5 @@ urlpatterns = [
     path('api/schema/redoc/', SpectacularRedocView.as_view(url_name='schema'), name='redoc'),
 
     # Serve React app for all non-API routes
-    re_path(r'^(?!api/).*', TemplateView.as_view(template_name='index.html'), name='react-app'),
+    re_path(r'^.*$', TemplateView.as_view(template_name='index.html'), name='react-app'),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
