@@ -19,7 +19,7 @@ env = environ.Env(
     # Set casting and default values
     DEBUG=(bool, False),
     SECRET_KEY=(str, 'django-insecure-waa62o+0-gj%rh-r4p$llwv8fpyinw_$&vb31vd0@%-p1lj#^#'),
-    ALLOWED_HOSTS=(list, ['localhost', '127.0.0.1', 'your-app.up.railway.app']),
+    ALLOWED_HOSTS=(list, ['localhost', '127.0.0.1', 'humble-enthusiasm-production.up.railway.app']),
     DB_ENGINE=(str, 'django.db.backends.postgresql'),
     DB_NAME=(str, 'railway'),
     DB_USER=(str, 'postgres'),
@@ -27,7 +27,7 @@ env = environ.Env(
     DB_HOST=(str, 'postgres.railway.internal'),
     DB_PORT=(int, 5432),
     # 💡 CORRECT: Using plural CORS_ALLOWED_ORIGINS (matches CORS_ALLOWED_ORIGINS setting)
-    CORS_ALLOWED_ORIGINS=(list, ['http://localhost:5173', 'http://127.0.0.1:5173', 'https://your-app.up.railway.app']),
+    CORS_ALLOWED_ORIGINS=(list, ['http://localhost:5173', 'http://127.0.0.1:5173', 'https://humble-enthusiasm-production.up.railway.app']),
     FRONTEND_URL=(str, 'http://localhost:5173'), # Changed to 'str' if used as a single base URL
     REDIS_URL=(str, 'redis://default:qOPtptfCHUeiinQwlUluYdxjLJjVgtlb@redis.railway.internal:6379'), # Added default for Redis
     USER_THROTTLE_LIMIT=(int, 1000), # Added explicit default casting
@@ -40,7 +40,11 @@ env = environ.Env(
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-environ.Env.read_env(os.path.join(BASE_DIR, ".env"))
+
+# Read .env file if it exists
+env_file = BASE_DIR / ".env"
+if env_file.exists():
+    environ.Env.read_env(env_file)
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
@@ -156,10 +160,16 @@ STATIC_URL = '/static/'
 # Where collectstatic will put all files
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
-# React build static files
+# React build static files - only add if directory exists
+import os
+frontend_static_dir = BASE_DIR / "frontend" / "build" / "static"
 STATICFILES_DIRS = [
-    BASE_DIR / "frontend" / "build" / "static",
-]
+    frontend_static_dir,
+] if os.path.exists(frontend_static_dir) else []
+
+# Add frontend build directory to static files finders
+WHITENOISE_USE_FINDERS = True
+WHITENOISE_AUTOREFRESH = True
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
