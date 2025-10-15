@@ -1,8 +1,13 @@
 from django.contrib import admin
 from django.urls import path, include
+from django.http import HttpResponse
 from drf_spectacular.views import SpectacularAPIView, SpectacularRedocView, SpectacularSwaggerView
 
+def home(request):
+    return HttpResponse("Tic-Tac-Toe Backend API is running! Visit /api/schema/swagger-ui/ for API documentation.")
+
 urlpatterns = [
+    path("", home, name="home"),  # Add root endpoint
     path("api/v1/accounts/", include("accounts.urls", namespace="accounts")),
     path("api/v1/games/", include("game.urls", namespace="game")),
     path("admin/", admin.site.urls),

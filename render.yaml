@@ -1,0 +1,57 @@
+services:
+  - type: web
+    name: tic-tac-toe-backend
+    runtime: python3
+    buildCommand: "cd backend && pip install -r requirements.txt"
+    startCommand: "cd backend && gunicorn game_backend.wsgi:application --bind 0.0.0.0:$PORT"
+    envVars:
+      - key: DEBUG
+        value: false
+      - key: SECRET_KEY
+        generateValue: true
+      - key: ALLOWED_HOSTS
+        value: tic-tac-toe-backend.onrender.com
+      - key: DB_ENGINE
+        value: django.db.backends.postgresql
+      - key: DB_NAME
+        fromDatabaseUrl: true
+      - key: DB_USER
+        fromDatabaseUrl: true
+      - key: DB_PASSWORD
+        fromDatabaseUrl: true
+      - key: DB_HOST
+        fromDatabaseUrl: true
+      - key: DB_PORT
+        fromDatabaseUrl: true
+      - key: CORS_ALLOWED_ORIGINS
+        value: https://tic-tac-toe-frontend.onrender.com
+      - key: REDIS_URL
+        fromService:
+          type: redis
+          name: tic-tac-toe-redis
+          property: connectionString
+      - key: USER_THROTTLE_LIMIT
+        value: 1000/hour
+      - key: ANON_THROTTLE_LIMIT
+        value: 1000/hour
+      - key: JWT_TOKEN_LIFETIME
+        value: 1
+      - key: JWT_REFRESH_TOKEN_LIFETIME
+        value: 7
+      - key: ROTATE_REFRESH_TOKEN
+        value: true
+      - key: BLACKLIST_AFTER_ROTATION
+        value: true
+
+  - type: web
+    name: tic-tac-toe-frontend
+    runtime: static
+    buildCommand: "cd frontend && npm install && npm run build"
+    staticPublishPath: frontend/build
+    envVars:
+      - key: VITE_API_BASE_URL
+        value: https://tic-tac-toe-backend.onrender.com/api/v1
+
+  - type: redis
+    name: tic-tac-toe-redis
+    ipAllowList: []  # Only accessible by other services in this project
