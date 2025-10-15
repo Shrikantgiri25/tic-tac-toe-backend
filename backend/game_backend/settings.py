@@ -18,7 +18,7 @@ env = environ.Env(
     # Set casting and default values
     DEBUG=(bool, False),
     SECRET_KEY=(str, 'django-insecure-waa62o+0-gj%rh-r4p$llwv8fpyinw_$&vb31vd0@%-p1lj#^#'),
-    ALLOWED_HOSTS=(list, ['localhost', '127.0.0.1', "humble-enthusiasm-production.up.railway.app", "tic-tac-toe-backend.onrender.com"]),
+    ALLOWED_HOSTS=(list, ['localhost', '127.0.0.1', "https://tic-tac-toe-frontend-0ug1.onrender.com"]),
     DB_ENGINE=(str, 'django.db.backends.postgresql'),
     DB_NAME=(str, 'tic_tac_toe'),
     DB_USER=(str, 'postgres'),
@@ -26,7 +26,7 @@ env = environ.Env(
     DB_HOST=(str, '127.0.0.1'),
     DB_PORT=(int, 5432),
     # 💡 CORRECT: Using plural CORS_ALLOWED_ORIGINS (matches CORS_ALLOWED_ORIGINS setting)
-    CORS_ALLOWED_ORIGINS=(list, ['http://localhost:5173', 'http://127.0.0.1:5173', 'https://tic-tac-toe-frontend.onrender.com']),
+    CORS_ALLOWED_ORIGINS=(list, ['https://tic-tac-toe-frontend-0ug1.onrender.com']),
     REDIS_URL=(str, 'redis://localhost:6379'), # Added default for Redis
     USER_THROTTLE_LIMIT=(str, "1000/hour"), # Throttle rates are strings
     ANON_THROTTLE_LIMIT=(str, "1000/hour"), # Throttle rates are strings
