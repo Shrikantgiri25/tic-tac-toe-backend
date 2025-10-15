@@ -1,23 +1,19 @@
 #!/bin/bash
+
+# Exit on error
 set -e
 
-echo "🚀 Starting Django setup..."
+echo "📦 Waiting for database to be ready..."
+# Optional — uncomment if you use Postgres or MySQL in container
+# while ! nc -z db 5432; do
+#   sleep 1
+# done
 
-# Move into backend folder
-cd /app/backend
-
-# Upgrade pip
-python3 -m pip install --upgrade pip
-
-# Install dependencies
-pip install -r requirements.txt
-
-# Apply migrations
+echo "🚀 Running migrations..."
 python manage.py migrate --noinput
 
-# Collect static files
+echo "🧹 Collecting static files..."
 python manage.py collectstatic --noinput
 
-# Start Daphne server (ASGI for WebSockets)
-echo "🎯 Starting Daphne server..."
-daphne -b 0.0.0.0 -p ${PORT:-8000} game_backend.asgi:application
+echo "🌍 Starting Django server..."
+gunicorn game_backend.wsgi:application --bind 0.0.0.0:8000
