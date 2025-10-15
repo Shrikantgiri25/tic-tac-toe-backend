@@ -16,5 +16,5 @@ echo "🧹 Collecting static files..."
 python manage.py collectstatic --noinput
 
 echo "🌍 Starting Django server..."
-gunicorn game_backend.wsgi:application --bind 0.0.0.0:$PORT
+daphne game_backend.asgi:application --bind 0.0.0.0 --port $PORT
 

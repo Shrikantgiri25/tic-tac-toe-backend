@@ -26,10 +26,10 @@ env = environ.Env(
     DB_HOST=(str, 'postgres.railway.internal'),
     DB_PORT=(int, 5432),
     # 💡 CORRECT: Using plural CORS_ALLOWED_ORIGINS (matches CORS_ALLOWED_ORIGINS setting)
-    CORS_ALLOWED_ORIGINS=(list, ['http://localhost:5173', 'http://127.0.0.1:5173', 'https://humble-enthusiasm-production.up.railway.app']),
+    CORS_ALLOWED_ORIGINS=(list, ['http://localhost:5173', 'http://127.0.0.1:5173']),
     REDIS_URL=(str, 'redis://default:qOPtptfCHUeiinQwlUluYdxjLJjVgtlb@redis.railway.internal:6379'), # Added default for Redis
-    USER_THROTTLE_LIMIT=(int, 1000), # Added explicit default casting
-    ANON_THROTTLE_LIMIT=(int, 1000), # Added explicit default casting
+    USER_THROTTLE_LIMIT=(str, "1000/hour"), # Throttle rates are strings
+    ANON_THROTTLE_LIMIT=(str, "1000/hour"), # Throttle rates are strings
     JWT_TOKEN_LIFETIME=(int, 100),   # Added explicit default casting
     JWT_REFRESH_TOKEN_LIFETIME=(int, 100), # Added explicit default casting
     ROTATE_REFRESH_TOKEN=(bool, True), # Added explicit default casting
@@ -52,6 +52,15 @@ SECRET_KEY = env("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = env("DEBUG")
+
+# Security settings for production
+if not DEBUG:
+    SECURE_SSL_REDIRECT = True
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    SECURE_HSTS_SECONDS = 31536000  # 1 year
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SECURE_HSTS_PRELOAD = True
 
 ALLOWED_HOSTS = env.list("ALLOWED_HOSTS")
 
