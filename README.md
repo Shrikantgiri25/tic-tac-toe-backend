@@ -1,34 +1,28 @@
-# Multiplayer Tic-Tac-Toe Game
+# Tic-Tac-Toe Backend
 
-A full-stack multiplayer Tic-Tac-Toe game built with Django REST Framework (backend) and React (frontend). Features server-authoritative game logic, real-time WebSocket communication, matchmaking system, and player leaderboard.
+A Django-based backend API for a multiplayer Tic-Tac-Toe game with real-time WebSocket support, matchmaking, and player ratings.
 
 ## 🚀 Features
 
-- **Server-Authoritative Architecture**: All game logic runs on the server to prevent cheating
-- **Real-Time Multiplayer**: WebSocket-based communication for instant game updates
-- **Matchmaking System**: Automatic opponent pairing
-- **Player Rating System**: Elo-based rating with wins/losses/draws tracking
-- **Leaderboard**: Global ranking system
-- **JWT Authentication**: Secure user authentication
-- **Responsive Design**: Mobile-friendly UI
+- **Server-Authoritative Game Logic**: All game state managed on the server to prevent cheating
+- **Real-Time Multiplayer**: WebSocket communication using Django Channels
+- **Matchmaking System**: Automatic pairing of waiting players
+- **Player Rating System**: Elo-based rating with win/loss/draw tracking
+- **JWT Authentication**: Secure user authentication with token-based auth
 - **API Documentation**: Complete Swagger/OpenAPI documentation
+- **PostgreSQL Database**: Robust data persistence
+- **Redis Channel Layer**: Scalable WebSocket connections
 
 ## 🏗️ Architecture
 
 ### Backend (Django)
-- **Framework**: Django 5.0.1 with Django REST Framework
-- **Authentication**: JWT tokens with django-rest-framework-simplejwt
-- **Real-Time**: Django Channels with Redis for WebSocket support
-- **Database**: PostgreSQL (configurable)
+- **Framework**: Django 5.0.1 with Django REST Framework 3.14.0
+- **Real-Time**: Django Channels 4.3.1 with Redis for WebSocket support
+- **Database**: PostgreSQL with psycopg2-binary
+- **Authentication**: JWT tokens with djangorestframework-simplejwt
 - **Documentation**: drf-spectacular for OpenAPI/Swagger
-
-### Frontend (React)
-- **Framework**: React 18 with Vite
-- **Routing**: React Router
-- **State Management**: React Context API
-- **Styling**: CSS Modules
-- **HTTP Client**: Axios with interceptors
-- **Notifications**: React Toastify
+- **CORS**: django-cors-headers for cross-origin requests
+- **Deployment**: gunicorn and daphne for ASGI support
 
 ## 📋 Requirements Met
 
@@ -40,81 +34,74 @@ A full-stack multiplayer Tic-Tac-Toe game built with Django REST Framework (back
 
 ## 🛠️ Tech Stack
 
-### Backend
-- Python 3.11+
-- Django 5.0.1
-- Django REST Framework 3.14.0
-- Django Channels 0.7.0
-- PostgreSQL
-- Redis
-- JWT Authentication
-
-### Frontend
-- Node.js 18+
-- React 18
-- Vite
-- Axios
-- React Router
-- React Toastify
+- **Python**: 3.11+
+- **Django**: 5.0.1
+- **Django REST Framework**: 3.14.0
+- **Django Channels**: 4.3.1
+- **PostgreSQL**: Database
+- **Redis**: Channel layer and caching
+- **JWT Authentication**: Token-based auth
+- **Gunicorn**: WSGI server
+- **Daphne**: ASGI server for WebSockets
 
 ## 🚀 Quick Start
 
 ### Prerequisites
-- Docker and Docker Compose (recommended)
-- Node.js 18+ and Python 3.11+ (for local development)
+- Python 3.11+
+- PostgreSQL
+- Redis
+- pip (Python package manager)
 
-### Using Docker (Recommended)
+### Local Development Setup
 
 1. **Clone the repository**
    ```bash
    git clone <repository-url>
-   cd lila_games_assignment
+   cd tic_tac_toe_backend
    ```
 
-2. **Environment Setup**
+2. **Create virtual environment**
+   ```bash
+   python -m venv venv
+   # On Windows:
+   venv\Scripts\activate
+   # On macOS/Linux:
+   source venv/bin/activate
+   ```
+
+3. **Install dependencies**
+   ```bash
+   pip install -r backend/requirements.txt
+   ```
+
+4. **Environment Setup**
    ```bash
    cp backend/.env.example backend/.env
-   cp frontend/.env.example frontend/.env
+   # Edit .env with your database and Redis settings
    ```
 
-3. **Start all services**
-   ```bash
-   docker-compose up --build
-   ```
-
-4. **Access the application**
-   - Frontend: http://localhost:5173
-   - Backend API: http://localhost:8000
-   - API Documentation: http://localhost:8000/api/schema/swagger-ui/
-
-### Local Development
-
-1. **Backend Setup**
+5. **Database Setup**
    ```bash
    cd backend
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-   pip install -r requirements.txt
    python manage.py migrate
+   ```
+
+6. **Run the server**
+   ```bash
    python manage.py runserver
    ```
 
-2. **Frontend Setup**
-   ```bash
-   cd frontend
-   npm install
-   npm run dev
-   ```
+The API will be available at `http://localhost:8000`
 
-## 🎮 How to Play
+## 🎮 Game Features
 
-1. **Register/Login**: Create an account or log in
-2. **Find Match**: Click "Play Now" to enter matchmaking
-3. **Game Rules**:
-   - Players take turns placing X's and O's
-   - First to get 3 in a row (horizontally, vertically, or diagonally) wins
-   - If board fills without winner, it's a draw
-4. **Scoring**: Wins +25 rating, Losses -15 rating, Draws +5 rating
+- **Matchmaking**: Join matchmaking to find opponents automatically
+- **Real-Time Gameplay**: WebSocket connections for instant game updates
+- **Game Rules**:
+  - Players take turns placing X's and O's
+  - First to get 3 in a row (horizontally, vertically, or diagonally) wins
+  - If board fills without winner, it's a draw
+- **Scoring**: Wins +25 rating, Losses -15 rating, Draws +5 rating
 
 ## 📚 API Documentation
 
@@ -122,111 +109,153 @@ Complete API documentation is available at `/api/schema/swagger-ui/` when the se
 
 ### Key Endpoints
 
+#### Authentication
 - `POST /api/v1/accounts/register/` - User registration
 - `POST /api/v1/accounts/login/` - User login
+- `GET /api/v1/accounts/leaderboard/` - Get leaderboard
+
+#### Games
+- `POST /api/v1/games/create/` - Create a new game
 - `POST /api/v1/games/matchmaking/` - Join matchmaking
 - `GET /api/v1/games/{id}/` - Get game details
-- `GET /api/v1/accounts/leaderboard/` - Get leaderboard
-- `WS /ws/game/{game_id}/` - WebSocket game connection
+- `GET /api/v1/games/my-games/` - Get user's games
+
+#### WebSocket
+- `WS /ws/game/{game_id}/` - Real-time game connection
 
 ## 🧪 Testing
 
-### Backend Tests
+Run the backend tests:
 ```bash
 cd backend
-python manage.py test game
-```
-
-### Frontend Tests
-```bash
-cd frontend
-npm test
+python manage.py test
 ```
 
 ## 🔧 Configuration
 
 ### Environment Variables
 
-#### Backend (.env)
+Create a `.env` file in the `backend/` directory:
+
 ```env
 DEBUG=True
-SECRET_KEY=your-secret-key
+SECRET_KEY=your-secret-key-here
 DB_ENGINE=django.db.backends.postgresql
 DB_NAME=tic_tac_toe
 DB_USER=postgres
-DB_PASSWORD=password
+DB_PASSWORD=your-password
 DB_HOST=localhost
 DB_PORT=5432
 REDIS_URL=redis://localhost:6379
 JWT_TOKEN_LIFETIME=24
 JWT_REFRESH_TOKEN_LIFETIME=168
-USER_THROTTLE_LIMIT=100/hour
-ANON_THROTTLE_LIMIT=10/hour
-CORS_ALLOWED_ORIGIN=http://localhost:5173
-FRONTEND_URL=http://localhost:5173
-```
-
-#### Frontend (.env)
-```env
-VITE_API_BASE_URL=http://localhost:8000/api/v1
-VITE_API_WS_URL=ws://localhost:8000
+USER_THROTTLE_LIMIT=1000/hour
+ANON_THROTTLE_LIMIT=1000/hour
+CORS_ALLOWED_ORIGINS=http://localhost:5173,https://your-frontend-domain.com
+ALLOWED_HOSTS=localhost,127.0.0.1,your-domain.com
 ```
 
 ## 🚀 Deployment
 
-See [DEPLOYMENT.md](DEPLOYMENT.md) for detailed deployment instructions for free platforms like Railway, Render, or Heroku.
+### Using Docker (Recommended)
+
+1. **Build and run with Docker Compose**
+   ```bash
+   docker-compose up --build
+   ```
+
+### Manual Deployment
+
+1. **Install dependencies**
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+2. **Run migrations**
+   ```bash
+   python manage.py migrate
+   ```
+
+3. **Collect static files**
+   ```bash
+   python manage.py collectstatic
+   ```
+
+4. **Run with Daphne (for WebSockets)**
+   ```bash
+   daphne game_backend.asgi:application --port 8000 --bind 0.0.0.0
+   ```
 
 ## 🏗️ Project Structure
 
 ```
-├── backend/
-│   ├── accounts/          # User management app
-│   ├── game/             # Game logic and WebSocket consumers
-│   ├── game_backend/     # Django project settings
-│   └── requirements.txt
-├── frontend/
-│   ├── src/
-│   │   ├── components/   # React components
-│   │   ├── pages/        # Page components
-│   │   ├── contexts/     # React contexts
-│   │   └── api/          # API clients
-│   └── package.json
-├── docker-compose.yml
-└── README.md
+backend/
+├── accounts/              # User management app
+│   ├── migrations/        # Database migrations
+│   ├── serializers/       # DRF serializers
+│   ├── models.py          # User model
+│   ├── views.py           # Authentication views
+│   └── urls.py            # URL patterns
+├── game/                  # Game logic app
+│   ├── migrations/        # Database migrations
+│   ├── consumers.py       # WebSocket consumers
+│   ├── game_logic.py      # Game rules and validation
+│   ├── models.py          # Game and Move models
+│   ├── routing.py         # WebSocket routing
+│   ├── serializer.py      # Game serializers
+│   ├── tests.py           # Unit tests
+│   ├── urls.py            # URL patterns
+│   └── views.py           # Game API views
+├── game_backend/          # Django project settings
+│   ├── settings.py        # Main settings
+│   ├── urls.py            # Root URL configuration
+│   ├── asgi.py            # ASGI application
+│   └── wsgi.py            # WSGI application
+├── utils/                 # Utility functions
+├── staticfiles/           # Collected static files
+├── .env.example           # Environment template
+├── .gitignore             # Git ignore rules
+├── manage.py              # Django management script
+└── requirements.txt       # Python dependencies
 ```
 
 ## 🔒 Security Features
 
-- JWT token authentication
-- CORS protection
+- JWT token authentication with refresh tokens
+- CORS protection with configurable origins
 - Rate limiting on API endpoints
 - Server-side game state validation
 - Input sanitization
 - Secure WebSocket connections
+- CSRF protection
 
 ## 📈 Performance
 
 - Redis-backed WebSocket channels for scalability
-- Database query optimization with select_related
+- Database query optimization
 - Efficient matchmaking algorithm
-- Compressed static files
-- CDN-ready asset serving
+- Connection pooling for database
+- Asynchronous WebSocket handling
 
 ## 🤝 Contributing
 
 1. Fork the repository
-2. Create a feature branch
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
 3. Make your changes
 4. Add tests for new features
-5. Ensure all tests pass
-6. Submit a pull request
-
+5. Ensure all tests pass (`python manage.py test`)
+6. Commit your changes (`git commit -m 'Add amazing feature'`)
+7. Push to the branch (`git push origin feature/amazing-feature`)
+8. Open a Pull Request
 
 ## 🙏 Acknowledgments
 
 - Django Channels for WebSocket support
-- React Toastify for notifications
 - DRF Spectacular for API documentation
-- The Django and React communities
+- The Django and DRF communities
+- PostgreSQL for reliable data storage
+- Redis for high-performance caching and channels
 
 ---
+
+**Note**: This is the backend API only. The frontend application is maintained separately.
