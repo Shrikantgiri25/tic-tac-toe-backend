@@ -12,7 +12,6 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 
 from pathlib import Path
 import environ
-import os
 from datetime import timedelta
 
 env = environ.Env(
@@ -28,7 +27,6 @@ env = environ.Env(
     DB_PORT=(int, 5432),
     # 💡 CORRECT: Using plural CORS_ALLOWED_ORIGINS (matches CORS_ALLOWED_ORIGINS setting)
     CORS_ALLOWED_ORIGINS=(list, ['http://localhost:5173', 'http://127.0.0.1:5173', 'https://humble-enthusiasm-production.up.railway.app']),
-    FRONTEND_URL=(str, 'http://localhost:5173'), # Changed to 'str' if used as a single base URL
     REDIS_URL=(str, 'redis://default:qOPtptfCHUeiinQwlUluYdxjLJjVgtlb@redis.railway.internal:6379'), # Added default for Redis
     USER_THROTTLE_LIMIT=(int, 1000), # Added explicit default casting
     ANON_THROTTLE_LIMIT=(int, 1000), # Added explicit default casting
@@ -77,7 +75,6 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware",
-    'whitenoise.middleware.WhiteNoiseMiddleware',
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -92,7 +89,7 @@ ROOT_URLCONF = "game_backend.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [BASE_DIR / "frontend" / "build"],
+        "DIRS": [],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -161,16 +158,8 @@ STATIC_URL = '/static/'
 # Where collectstatic will put all files
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
-# React build static files - only add if directory exists
-import os
-frontend_static_dir = BASE_DIR / "frontend" / "build" / "static"
-STATICFILES_DIRS = [
-    frontend_static_dir,
-] if os.path.exists(frontend_static_dir) else []
-
-# Add frontend build directory to static files finders
-WHITENOISE_USE_FINDERS = True
-WHITENOISE_AUTOREFRESH = True
+# Static files directories
+STATICFILES_DIRS = []
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
@@ -201,8 +190,6 @@ SIMPLE_JWT = {
     "ROTATE_REFRESH_TOKENS": env("ROTATE_REFRESH_TOKEN"),
     "BLACKLIST_AFTER_ROTATION": env("BLACKLIST_AFTER_ROTATION"),
 }
-
-FRONTEND_URL = env("FRONTEND_URL")
 
 CHANNEL_LAYERS = {
     'default': {
