@@ -26,8 +26,8 @@ env = environ.Env(
     DB_HOST=(str, '127.0.0.1'),
     DB_PORT=(int, 5432),
     # 💡 CORRECT: Using plural CORS_ALLOWED_ORIGINS (matches CORS_ALLOWED_ORIGINS setting)
-    CORS_ALLOWED_ORIGINS=(list, ['https://tic-tac-toe-frontend-0ug1.onrender.com']),
-    REDIS_URL=(str, 'redis://localhost:6379'), # Added default for Redis
+    CORS_ALLOWED_ORIGINS=(list, ['https://tic-tac-toe-frontend-0ug1.onrender.com', "http://localhost:5173"]),
+    REDIS_URL=(str, 'redis://red-d3nkrrer433s73bjtnn0:6379'), # Added default for Redis
     USER_THROTTLE_LIMIT=(str, "1000/hour"), # Throttle rates are strings
     ANON_THROTTLE_LIMIT=(str, "1000/hour"), # Throttle rates are strings
     JWT_TOKEN_LIFETIME=(int, 100),   # Added explicit default casting
